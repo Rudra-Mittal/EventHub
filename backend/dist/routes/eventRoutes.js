@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const auth_1 = require("../middleware/auth");
+const eventController_1 = require("../controllers/eventController");
+const multer_1 = __importDefault(require("multer"));
+const upload = (0, multer_1.default)({ dest: 'uploads/' });
+const router = express_1.default.Router();
+router.get('/search', eventController_1.searchEvents);
+router.post('/', auth_1.protect, upload.single('image'), eventController_1.createEvent);
+router.get('/', eventController_1.getEvents);
+router.get('/:id', eventController_1.getEventById);
+router.put('/:id', auth_1.protect, eventController_1.updateEvent);
+router.delete('/:id', auth_1.protect, eventController_1.deleteEvent);
+router.post('/:id/join', auth_1.protect, eventController_1.joinEvent);
+router.post('/:id/leave', auth_1.protect, eventController_1.leaveEvent);
+exports.default = router;
