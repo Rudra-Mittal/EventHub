@@ -95,9 +95,9 @@ export default function Register() {
             </button>
             </div>
             <div className="text-sm text-center">
-            <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <button type='submit' onClick={()=>navigate('/login')} className="font-medium text-indigo-600 hover:text-indigo-500">
               Already have an account? Sign in
-            </a>
+            </button>
             </div>
         </form>
       </div>
