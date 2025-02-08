@@ -13,12 +13,11 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin:[ process.env.FRONTEND_URL||""],
     methods: ['GET', 'POST']
   }
 });
 
-// Make io accessible to route handlers
 app.set('io', io);
 
 // Connect to MongoDB
@@ -32,7 +31,7 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 
-// Socket.IO
+// Socket.Io
 io.on('connection', (socket) => {
   console.log('A user connected');
 
