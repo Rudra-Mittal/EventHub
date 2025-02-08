@@ -1,8 +1,11 @@
-import { Fragment } from 'react';
+import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
+import { motion } from 'framer-motion';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
+
+const MotionLink = motion(Link);
 
 export default function Navbar() {
   const { auth, logout } = useAuth();
@@ -13,116 +16,178 @@ export default function Navbar() {
     { name: 'Create Event', href: '/events/create', current: false },
   ];
 
+  const navItemVariants = {
+    hidden: { opacity: 0, y: -10 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  const logoVariants = {
+    hidden: { scale: 0.8, opacity: 0 },
+    visible: { scale: 1, opacity: 1 }
+  };
+
+  const mobileMenuVariants = {
+    hidden: { opacity: 0, height: 0 },
+    visible: { opacity: 1, height: 'auto' }
+  };
+
   return (
-    <Disclosure as="nav" className="bg-gray-800">
+    <Disclosure as="nav" className="bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg">
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 justify-between">
               <div className="flex">
-                <div className="flex flex-shrink-0 items-center">
-                  <Link to="/" className="text-white font-bold text-xl">
+                <motion.div 
+                  className="flex flex-shrink-0 items-center"
+                  initial="hidden"
+                  animate="visible"
+                  variants={logoVariants}
+                  transition={{ type: "spring", stiffness: 200 }}
+                >
+                  <Link to="/" className="text-white font-bold text-2xl tracking-tight">
                     EventHub
                   </Link>
-                </div>
+                </motion.div>
                 <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                  {navigation.map((item) => (
-                    <Link
+                  {navigation.map((item, index) => (
+                    <MotionLink
                       key={item.name}
                       to={item.href}
-                      className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                      className="text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                      variants={navItemVariants}
+                      initial="hidden"
+                      animate="visible"
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       {item.name}
-                    </Link>
+                    </MotionLink>
                   ))}
                 </div>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:items-center">
                 {auth.user ? (
                   <Menu as="div" className="relative ml-3">
-                    <Menu.Button className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                      {auth.user.name}
-                    </Menu.Button>
+                    <motion.div whileHover={{ scale: 1.05 }}>
+                      <Menu.Button className="text-white hover:bg-white/10 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                        {auth.user.name}
+                      </Menu.Button>
+                    </motion.div>
                     <Transition
                       as={Fragment}
-                      enter="transition ease-out duration-100"
+                      enter="transition ease-out duration-200"
                       enterFrom="transform opacity-0 scale-95"
                       enterTo="transform opacity-100 scale-100"
-                      leave="transition ease-in duration-75"
+                      leave="transition ease-in duration-150"
                       leaveFrom="transform opacity-100 scale-100"
                       leaveTo="transform opacity-0 scale-95"
                     >
                       <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <Menu.Item>
                           {({ active }) => (
-                            <button
+                            <motion.button
                               onClick={logout}
                               className={`${
                                 active ? 'bg-gray-100' : ''
                               } block px-4 py-2 text-sm text-gray-700 w-full text-left`}
+                              whileHover={{ backgroundColor: '#f3f4f6' }}
+                              whileTap={{ scale: 0.98 }}
                             >
                               Sign out
-                            </button>
+                            </motion.button>
                           )}
                         </Menu.Item>
                       </Menu.Items>
                     </Transition>
                   </Menu>
                 ) : (
-                  <div className="flex space-x-4">
-                    <Link
+                  <motion.div 
+                    className="flex space-x-4"
+                    initial="hidden"
+                    animate="visible"
+                    variants={navItemVariants}
+                  >
+                    <MotionLink
                       to="/login"
-                      className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                      className="text-white hover:bg-white/10 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       Login
-                    </Link>
-                    <Link
+                    </MotionLink>
+                    <MotionLink
                       to="/register"
-                      className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                      className="bg-white text-indigo-600 hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       Register
-                    </Link>
-                  </div>
+                    </MotionLink>
+                  </motion.div>
                 )}
               </div>
               <div className="-mr-2 flex items-center sm:hidden">
-                <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-white hover:bg-white/10 focus:outline-none">
                   <span className="sr-only">Open main menu</span>
-                  {open ? (
-                    <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
-                  ) : (
-                    <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
-                  )}
+                  <motion.div
+                    initial={false}
+                    animate={{ rotate: open ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {open ? (
+                      <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                    ) : (
+                      <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                    )}
+                  </motion.div>
                 </Disclosure.Button>
               </div>
             </div>
           </div>
 
-          <Disclosure.Panel className="sm:hidden">
+          <Disclosure.Panel 
+            as={motion.div}
+            variants={mobileMenuVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            className="sm:hidden"
+          >
             <div className="space-y-1 px-2 pb-3 pt-2">
-              {navigation.map((item) => (
-                <Link
+              {navigation.map((item, index) => (
+                <MotionLink
                   key={item.name}
                   to={item.href}
-                  className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+                  className="text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium"
+                  variants={navItemVariants}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ x: 10 }}
                 >
                   {item.name}
-                </Link>
+                </MotionLink>
               ))}
               {!auth.user && (
                 <>
-                  <Link
+                  <MotionLink
                     to="/login"
-                    className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+                    className="text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium"
+                    variants={navItemVariants}
+                    whileHover={{ x: 10 }}
                   >
                     Login
-                  </Link>
-                  <Link
+                  </MotionLink>
+                  <MotionLink
                     to="/register"
-                    className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+                    className="text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium"
+                    variants={navItemVariants}
+                    whileHover={{ x: 10 }}
                   >
                     Register
-                  </Link>
+                  </MotionLink>
                 </>
               )}
             </div>

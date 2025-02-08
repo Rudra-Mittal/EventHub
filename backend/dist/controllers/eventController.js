@@ -41,7 +41,7 @@ const searchEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.searchEvents = searchEvents;
 const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log('req.file:', req);
+        console.log('req.body:', req.body);
         let imageUrl = '';
         if (req.file) {
             const result = yield cloudinary_1.default.uploader.upload(req.file.path);
@@ -82,6 +82,7 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             Event_1.default.countDocuments(query),
         ]);
         const totalPages = Math.ceil(total / Number(limit));
+        console.log(events);
         res.json({
             events,
             pagination: {
@@ -125,6 +126,7 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         if (event.creator.toString() !== req.user.id) {
             return res.status(401).json({ message: 'Not authorized' });
         }
+        console.log(req.url);
         let imageUrl = event.imageUrl;
         if (req.file) {
             // Delete old image if it exists

@@ -13,7 +13,7 @@ router.get('/search', eventController_1.searchEvents);
 router.post('/', auth_1.protect, upload.single('image'), eventController_1.createEvent);
 router.get('/', eventController_1.getEvents);
 router.get('/:id', eventController_1.getEventById);
-router.put('/:id', auth_1.protect, eventController_1.updateEvent);
+router.put('/:id', upload.single('image'), auth_1.protect, eventController_1.updateEvent);
 router.delete('/:id', auth_1.protect, eventController_1.deleteEvent);
 router.post('/:id/join', auth_1.protect, eventController_1.joinEvent);
 router.post('/:id/leave', auth_1.protect, eventController_1.leaveEvent);

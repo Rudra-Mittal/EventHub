@@ -18,7 +18,7 @@ router.get('/search', searchEvents);
 router.post('/', protect, upload.single('image'), createEvent);
 router.get('/', getEvents);
 router.get('/:id', getEventById);
-router.put('/:id', protect, updateEvent);
+router.put('/:id',upload.single('image'), protect, updateEvent);
 router.delete('/:id', protect, deleteEvent);
 router.post('/:id/join', protect, joinEvent);
 router.post('/:id/leave', protect, leaveEvent);

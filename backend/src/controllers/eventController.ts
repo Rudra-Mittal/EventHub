@@ -32,7 +32,7 @@ export const searchEvents = async (req: Request, res: Response) => {
 
 export const createEvent = async (req: Request, res: Response) => {
   try {
-    console.log('req.file:', req);
+    console.log('req.body:', req.body);
     let imageUrl = '';
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path);
@@ -84,7 +84,7 @@ export const getEvents = async (req: Request, res: Response) => {
     ]);
 
     const totalPages = Math.ceil(total / Number(limit));
-
+    console.log(events)
     res.json({
       events,
       pagination: {
@@ -125,7 +125,7 @@ export const updateEvent = async (req: Request, res: Response) => {
     if (event.creator.toString() !== req.user.id) {
       return res.status(401).json({ message: 'Not authorized' });
     }
-
+    console.log(req.url)
     let imageUrl = event.imageUrl;
     if (req.file) {
       // Delete old image if it exists

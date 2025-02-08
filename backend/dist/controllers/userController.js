@@ -49,6 +49,7 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { email, password } = req.body;
         const user = yield User_1.default.findOne({ email });
         if (user && (yield user.matchPassword(password))) {
+            console.log(user);
             res.json({
                 _id: user._id,
                 name: user.name,

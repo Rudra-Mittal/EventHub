@@ -14,23 +14,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedAuth = localStorage.getItem('auth');
     return storedAuth ? JSON.parse(storedAuth) : { user: null, token: null };
   });
-
   useEffect(() => {
+    console.log(auth,"auth")
     localStorage.setItem('auth', JSON.stringify(auth));
   }, [auth]);
 
   const login = (userData: User & { token: string }) => {
-    setAuth({
-      user: {
-        _id: userData._id,
-        name: userData.name,
-        email: userData.email,
-      },
-      token: userData.token,
-    });
+    console.log(userData, "login");
+  const updatedAuth = {
+    user: {
+      _id: userData._id,
+      name: userData.name,
+      email: userData.email,
+    },
+    token: userData.token,
   };
-
+  setAuth(updatedAuth);
+  }
   const logout = () => {
+    console.log("logout")
     setAuth({ user: null, token: null });
     localStorage.removeItem('auth');
   };
