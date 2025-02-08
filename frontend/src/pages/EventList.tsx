@@ -106,7 +106,7 @@ export default function EventList() {
     })
 
     return () => {
-      // Clean up socket connections
+      // Cleaning  up socket connections
       events.forEach((event: { _id: string }) => {
         leaveEventRoom(event._id)
       })

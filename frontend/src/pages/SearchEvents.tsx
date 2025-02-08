@@ -26,7 +26,7 @@ export default function SearchEvents() {
 
   // Join socket rooms for all visible events
   useEffect(() => {
-    events.forEach((event) => {
+    events.forEach((event: { _id: string; }) => {
       joinEventRoom(event._id);
     });
 
@@ -45,7 +45,7 @@ export default function SearchEvents() {
 
     return () => {
       // Clean up socket connections
-      events.forEach((event) => {
+      events.forEach((event: { _id: string; }) => {
         leaveEventRoom(event._id);
       });
       socket.off('attendeeUpdate');
@@ -54,16 +54,10 @@ export default function SearchEvents() {
 
   const joinMutation = useMutation({
     mutationFn: (eventId: string) => api.joinEvent(eventId),
-    onSuccess: (data) => {
-      // The socket will handle the real-time update
-    },
   });
 
   const leaveMutation = useMutation({
     mutationFn: (eventId: string) => api.leaveEvent(eventId),
-    onSuccess: (data) => {
-      // The socket will handle the real-time update
-    },
   });
 
   return (
