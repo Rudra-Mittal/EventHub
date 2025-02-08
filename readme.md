@@ -13,7 +13,6 @@ Event Hub is a platform to create and manage events with real-time support. It p
 - View event details and attendee list
 - Join and leave events
 - Upload event images
-- Notifications for event updates
 
 ## Frontend
 - **Stack**: React, Framer Motion
@@ -38,15 +37,16 @@ Event Hub is a platform to create and manage events with real-time support. It p
 
 
 2.Install dependencies for both frontend and backend:
-cd frontend
-npm install
-cd ../backend
-npm install
+    ```bash
+      cd frontend
+      npm install
+      cd ../backend
+      npm install 
 
 3.Create a .env file in both frontend and backend directories and add the necessary environment variables.
 
 4.Start the development servers:
-
+```bash
 cd frontend
 npm run dev
 cd ../backend
