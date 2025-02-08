@@ -40,6 +40,7 @@ const searchEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 });
 exports.searchEvents = searchEvents;
 const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         console.log('req.body:', req.body);
         let imageUrl = '';
@@ -47,7 +48,7 @@ const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             const result = yield cloudinary_1.default.uploader.upload(req.file.path);
             imageUrl = result.secure_url;
         }
-        const event = yield Event_1.default.create(Object.assign(Object.assign({}, req.body), { creator: req.user.id, imageUrl }));
+        const event = yield Event_1.default.create(Object.assign(Object.assign({}, req.body), { creator: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id, imageUrl }));
         const populatedEvent = yield Event_1.default.findById(event._id)
             .populate('creator', 'name email')
             .populate('attendees', 'name email');
@@ -117,13 +118,13 @@ const getEventById = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 });
 exports.getEventById = getEventById;
 const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     try {
         const event = yield Event_1.default.findById(req.params.id);
         if (!event) {
             return res.status(404).json({ message: 'Event not found' });
         }
-        if (event.creator.toString() !== req.user.id) {
+        if (event.creator.toString() !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a.id)) {
             return res.status(401).json({ message: 'Not authorized' });
         }
         console.log(req.url);
@@ -131,7 +132,7 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         if (req.file) {
             // Delete old image if it exists
             if (event.imageUrl) {
-                const publicId = (_a = event.imageUrl.split('/').pop()) === null || _a === void 0 ? void 0 : _a.split('.')[0];
+                const publicId = (_b = event.imageUrl.split('/').pop()) === null || _b === void 0 ? void 0 : _b.split('.')[0];
                 if (publicId) {
                     yield cloudinary_1.default.uploader.destroy(publicId);
                 }
@@ -154,12 +155,13 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.updateEvent = updateEvent;
 const deleteEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const event = yield Event_1.default.findById(req.params.id);
         if (!event) {
             return res.status(404).json({ message: 'Event not found' });
         }
-        if (event.creator.toString() !== req.user.id) {
+        if (event.creator.toString() !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a.id)) {
             return res.status(401).json({ message: 'Not authorized' });
         }
         yield event.deleteOne();
@@ -174,18 +176,19 @@ const deleteEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.deleteEvent = deleteEvent;
 const joinEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const event = yield Event_1.default.findById(req.params.id);
         if (!event) {
             return res.status(404).json({ message: 'Event not found' });
         }
-        if (event.attendees.includes(req.user.id)) {
+        if (req.user && event.attendees.includes(req.user.id)) {
             return res.status(400).json({ message: 'Already joined' });
         }
         if (event.attendees.length >= event.maxAttendees) {
             return res.status(400).json({ message: 'Event is full' });
         }
-        event.attendees.push(req.user.id);
+        event.attendees.push((_a = req.user) === null || _a === void 0 ? void 0 : _a.id);
         const updatedEvent = yield event.save();
         const populatedEvent = yield Event_1.default.findById(updatedEvent._id)
             .populate('creator', 'name email')
@@ -207,10 +210,10 @@ const leaveEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (!event) {
             return res.status(404).json({ message: 'Event not found' });
         }
-        if (!event.attendees.includes(req.user.id)) {
+        if (req.user && !event.attendees.includes(req.user.id)) {
             return res.status(400).json({ message: 'Not joined' });
         }
-        event.attendees = event.attendees.filter((attendee) => attendee.toString() !== req.user.id);
+        event.attendees = event.attendees.filter((attendee) => { var _a; return attendee.toString() !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a.id); });
         const updatedEvent = yield event.save();
         const populatedEvent = yield Event_1.default.findById(updatedEvent._id)
             .populate('creator', 'name email')

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
@@ -28,7 +27,7 @@ export const registerUser = async (req: Request, res: Response) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      token: generateToken(user._id),
+      token: generateToken(user._id.toString()),
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
@@ -39,13 +38,14 @@ export const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
+    // @ts-ignore
     if (user && (await user.matchPassword(password))) {
       console.log(user)
       res.json({
         _id: user._id,
         name: user.name,
         email: user.email,
-        token: generateToken(user._id),
+        token: generateToken(user._id.toString()),
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
@@ -57,7 +57,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
 export const getUserProfile = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user?.id).select('-password');
     if (user) {
       res.json(user);
     } else {
@@ -70,7 +70,7 @@ export const getUserProfile = async (req: Request, res: Response) => {
 
 export const updateUserProfile = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user?.id);
     if (user) {
       user.name = req.body.name || user.name;
       user.email = req.body.email || user.email;
@@ -83,7 +83,7 @@ export const updateUserProfile = async (req: Request, res: Response) => {
         _id: updatedUser._id,
         name: updatedUser.name,
         email: updatedUser.email,
-        token: generateToken(updatedUser._id),
+        token: generateToken(updatedUser._id.toString()),
       });
     } else {
       res.status(404).json({ message: 'User not found' });

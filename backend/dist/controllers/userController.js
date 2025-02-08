@@ -36,7 +36,7 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             _id: user._id,
             name: user.name,
             email: user.email,
-            token: generateToken(user._id),
+            token: generateToken(user._id.toString()),
         });
     }
     catch (error) {
@@ -48,13 +48,14 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
         const user = yield User_1.default.findOne({ email });
+        // @ts-ignore
         if (user && (yield user.matchPassword(password))) {
             console.log(user);
             res.json({
                 _id: user._id,
                 name: user.name,
                 email: user.email,
-                token: generateToken(user._id),
+                token: generateToken(user._id.toString()),
             });
         }
         else {
@@ -67,8 +68,9 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.loginUser = loginUser;
 const getUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const user = yield User_1.default.findById(req.user.id).select('-password');
+        const user = yield User_1.default.findById((_a = req.user) === null || _a === void 0 ? void 0 : _a.id).select('-password');
         if (user) {
             res.json(user);
         }
@@ -82,8 +84,9 @@ const getUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function*
 });
 exports.getUserProfile = getUserProfile;
 const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const user = yield User_1.default.findById(req.user.id);
+        const user = yield User_1.default.findById((_a = req.user) === null || _a === void 0 ? void 0 : _a.id);
         if (user) {
             user.name = req.body.name || user.name;
             user.email = req.body.email || user.email;
@@ -95,7 +98,7 @@ const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 _id: updatedUser._id,
                 name: updatedUser.name,
                 email: updatedUser.email,
-                token: generateToken(updatedUser._id),
+                token: generateToken(updatedUser._id.toString()),
             });
         }
         else {

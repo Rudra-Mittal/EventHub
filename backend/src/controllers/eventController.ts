@@ -1,7 +1,23 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import Event from '../models/Event';
 import cloudinary from '../config/cloudinary';
+declare global {
+
+  namespace Express {
+
+    interface Request {
+
+      user?: {
+
+        id: string;
+
+      };
+
+    }
+
+  }
+
+}
 
 export const searchEvents = async (req: Request, res: Response) => {
   try {
@@ -41,7 +57,7 @@ export const createEvent = async (req: Request, res: Response) => {
 
     const event = await Event.create({
       ...req.body,
-      creator: req.user.id,
+      creator: req.user?.id,
       imageUrl,
     });
 
@@ -122,7 +138,7 @@ export const updateEvent = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    if (event.creator.toString() !== req.user.id) {
+    if (event.creator.toString() !== req.user?.id) {
       return res.status(401).json({ message: 'Not authorized' });
     }
     console.log(req.url)
@@ -165,7 +181,7 @@ export const deleteEvent = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    if (event.creator.toString() !== req.user.id) {
+    if (event.creator.toString() !== req.user?.id) {
       return res.status(401).json({ message: 'Not authorized' });
     }
 
@@ -188,7 +204,7 @@ export const joinEvent = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    if (event.attendees.includes(req.user.id)) {
+    if (req.user && event.attendees.includes(req.user.id as any)) {
       return res.status(400).json({ message: 'Already joined' });
     }
 
@@ -196,7 +212,7 @@ export const joinEvent = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Event is full' });
     }
 
-    event.attendees.push(req.user.id);
+    event.attendees.push(req.user?.id as any);
     const updatedEvent = await event.save();
 
     const populatedEvent = await Event.findById(updatedEvent._id)
@@ -221,12 +237,12 @@ export const leaveEvent = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    if (!event.attendees.includes(req.user.id)) {
+    if (req.user && !event.attendees.includes(req.user.id as any)) {
       return res.status(400).json({ message: 'Not joined' });
     }
 
     event.attendees = event.attendees.filter(
-      (attendee) => attendee.toString() !== req.user.id
+      (attendee) => attendee.toString() !== req.user?.id
     );
     const updatedEvent = await event.save();
 

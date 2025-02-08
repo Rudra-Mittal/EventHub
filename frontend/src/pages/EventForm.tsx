@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import {useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import * as api from '../api';
 import { motion } from 'framer-motion';
-import { AlertCircle, Upload } from 'lucide-react';
+import { AlertCircle, Upload, Loader2 } from 'lucide-react';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -51,6 +51,8 @@ export default function EventForm() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -62,27 +64,28 @@ export default function EventForm() {
       maxAttendees: 1,
     },
   });
+
   if(isEditForm){
     useEffect(()=>{
       api.getEvent(id!).then((res) => {
-        console.log(res.data);
-      reset({
-        title: res.data.title,
-        description: res.data.description,
-        date: new Date(res.data.date).toISOString().split('T')[0],
-        location: res.data.location,
-        category: res.data.category,
-        maxAttendees: res.data.maxAttendees,
-      });
-      if (res.data.imageUrl) {
-        setImagePreview(res.data.imageUrl);
-      }
+        reset({
+          title: res.data.title,
+          description: res.data.description,
+          date: new Date(res.data.date).toISOString().split('T')[0],
+          location: res.data.location,
+          category: res.data.category,
+          maxAttendees: res.data.maxAttendees,
+        });
+        if (res.data.imageUrl) {
+          setImagePreview(res.data.imageUrl);
+        }
       })
     },[])
   }
 
   const createMutation = useMutation({
     mutationFn: (data: EventFormData) => {
+      setIsSubmitting(true);
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
         formData.append(key, value.toString());
@@ -93,15 +96,18 @@ export default function EventForm() {
       return api.createEvent(formData);
     },
     onSuccess: () => {
+      setIsSubmitting(false);
       navigate('/');
     },
     onError: (error: any) => {
+      setIsSubmitting(false);
       setError(error.response?.data?.message || 'An error occurred');
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: (data: EventFormData) => {
+      setIsSubmitting(true);
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
         formData.append(key, value.toString());
@@ -112,9 +118,11 @@ export default function EventForm() {
       return api.updateEvent(id!, formData);
     },
     onSuccess: () => {
+      setIsSubmitting(false);
       navigate(`/events/${id}`);
     },
     onError: (error: any) => {
+      setIsSubmitting(false);
       setError(error.response?.data?.message || 'An error occurred');
     },
   });
@@ -239,6 +247,7 @@ export default function EventForm() {
                 )}
                 <div className="flex-1">
                   <input
+                    title='Provide file input'
                     type="file"
                     ref={fileInputRef}
                     onChange={handleImageChange}
@@ -315,12 +324,21 @@ export default function EventForm() {
             >
               <motion.button
                 type="submit"
-                className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium shadow-lg"
-                whileHover={{ scale: 1.02, backgroundColor: "#4338ca" }}
-                whileTap={{ scale: 0.98 }}
+                disabled={isSubmitting}
+                className={`px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium shadow-lg flex items-center justify-center gap-2 min-w-[140px]
+                  ${isSubmitting ? 'opacity-75 cursor-not-allowed' : 'hover:bg-indigo-700'}`}
+                whileHover={isSubmitting ? {} : { scale: 1.02 }}
+                whileTap={isSubmitting ? {} : { scale: 0.98 }}
                 transition={{ duration: 0.2 }}
               >
-                {id ? 'Update Event' : 'Create Event'}
+                {isSubmitting && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
+                <span>
+                  {isSubmitting 
+                    ? (id ? 'Updating...' : 'Creating...') 
+                    : (id ? 'Update Event' : 'Create Event')}
+                </span>
               </motion.button>
             </motion.div>
           </form>

@@ -40,7 +40,7 @@ export default function EventList() {
 
   // Filter and sort events
   const filteredAndSortedEvents = events
-    .filter((event) => {
+    .filter((event: { title: string; description: string; location: string }) => {
       const matchesSearch = searchTerm
         ? event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -48,7 +48,7 @@ export default function EventList() {
         : true
       return matchesSearch
     })
-    .sort((a, b) => {
+    .sort((a: { date: string | number | Date }, b: { date: string | number | Date }) => {
       const dateA = new Date(a.date).getTime()
       const dateB = new Date(b.date).getTime()
       return sortOrder === "asc" ? dateA - dateB : dateB - dateA
@@ -57,7 +57,7 @@ export default function EventList() {
   // Listen for real-time updates
   useEffect(() => {
     // Join socket rooms for all visible events
-    events.forEach((event) => {
+    events.forEach((event: { _id: string }) => {
       joinEventRoom(event._id)
     })
 
@@ -107,7 +107,7 @@ export default function EventList() {
 
     return () => {
       // Clean up socket connections
-      events.forEach((event) => {
+      events.forEach((event: { _id: string }) => {
         leaveEventRoom(event._id)
       })
       socket.off("eventUpdated")

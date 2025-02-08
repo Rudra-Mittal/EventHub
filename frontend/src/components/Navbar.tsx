@@ -9,7 +9,6 @@ const MotionLink = motion(Link);
 
 export default function Navbar() {
   const { auth, logout } = useAuth();
-
   const navigation = [
     { name: 'Events', href: '/', current: true },
     { name: 'Search', href: '/search', current: false },
@@ -31,9 +30,14 @@ export default function Navbar() {
     visible: { opacity: 1, height: 'auto' }
   };
 
+  const handleLogout = (close: { (focusableElement?: HTMLElement | React.MutableRefObject<HTMLElement | null>): void; (focusableElement?: HTMLElement | React.MutableRefObject<HTMLElement | null>): void; (): void; }) => {
+    logout();
+    if (close) close();
+  };
+
   return (
     <Disclosure as="nav" className="bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg">
-      {({ open }) => (
+      {({ open, close }) => (
         <>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 justify-between">
@@ -45,7 +49,7 @@ export default function Navbar() {
                   variants={logoVariants}
                   transition={{ type: "spring", stiffness: 200 }}
                 >
-                  <Link to="/" className="text-white font-bold text-2xl tracking-tight">
+                  <Link to="/" className="text-white font-bold text-2xl tracking-tight" onClick={() => close()}>
                     EventHub
                   </Link>
                 </motion.div>
@@ -72,7 +76,9 @@ export default function Navbar() {
                   <Menu as="div" className="relative ml-3">
                     <motion.div whileHover={{ scale: 1.05 }}>
                       <Menu.Button className="text-white hover:bg-white/10 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
-                        {auth.user.name}
+                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500 text-white">
+                          {auth.user.name.charAt(0)}
+                        </span>
                       </Menu.Button>
                     </motion.div>
                     <Transition
@@ -88,7 +94,32 @@ export default function Navbar() {
                         <Menu.Item>
                           {({ active }) => (
                             <motion.button
-                              onClick={logout}
+                              className={`${
+                                active ? 'bg-gray-100' : ''
+                              } block px-4 py-2 text-sm text-gray-700 w-full text-left`}
+                              whileHover={{ backgroundColor: '#f3f4f6' }}
+                              whileTap={{ scale: 0.98 }}
+                            >
+                              {auth.user?.name}
+                            </motion.button>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <motion.button
+                              className={`${
+                                active ? 'bg-gray-100' : ''
+                              } block px-4 py-2 text-sm text-gray-700 w-full text-left`}
+                              whileHover={{ backgroundColor: '#f3f4f6' }}
+                            >
+                              {auth.user?.email}
+                            </motion.button>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <motion.button
+                              onClick={() => handleLogout(close)}
                               className={`${
                                 active ? 'bg-gray-100' : ''
                               } block px-4 py-2 text-sm text-gray-700 w-full text-left`}
@@ -166,17 +197,31 @@ export default function Navbar() {
                   animate="visible"
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ x: 10 }}
+                  onClick={() => close()}
                 >
                   {item.name}
                 </MotionLink>
               ))}
-              {!auth.user && (
+              {auth.user ? (
+                <div className="border-t border-white/20 mt-2 pt-2">
+                  <div className="text-white text-center text-sm font-medium">{auth.user.name}</div>
+                  <div className="text-white text-center text-xs opacity-80">{auth.user.email}</div>
+                  <motion.button
+                    onClick={() => handleLogout(close)}
+                    className="mt-2 w-full text-left text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium"
+                    whileHover={{ x: 10 }}
+                  >
+                    Sign out
+                  </motion.button>
+                </div>
+              ) : (
                 <>
                   <MotionLink
                     to="/login"
                     className="text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium"
                     variants={navItemVariants}
                     whileHover={{ x: 10 }}
+                    onClick={() => close()}
                   >
                     Login
                   </MotionLink>
@@ -185,6 +230,7 @@ export default function Navbar() {
                     className="text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium"
                     variants={navItemVariants}
                     whileHover={{ x: 10 }}
+                    onClick={() => close()}
                   >
                     Register
                   </MotionLink>

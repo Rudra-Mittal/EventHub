@@ -18,7 +18,7 @@ function App() {
   return (
     <AuthProvider>
       <div className="min-h-screen bg-gray-100">
-        <Navbar />
+        <Navbar  />
         <main>
           <Routes>
             <Route path="/" element={<EventList />} />
